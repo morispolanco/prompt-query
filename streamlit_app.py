@@ -1,4 +1,4 @@
-Copyimport streamlit as st
+import streamlit as st
 import pandas as pd
 
 def excel_to_database(file_path):
