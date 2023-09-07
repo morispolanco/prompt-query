@@ -1,4 +1,4 @@
-Copyimport streamlit as st
+import streamlit as st
 import pandas as pd
 
 # Cargar el archivo de Excel usando Streamlit
