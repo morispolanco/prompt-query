@@ -1,44 +1,37 @@
 import streamlit as st
 import pandas as pd
 
-def excel_to_database(file_path):
-    # Leer el archivo Excel
-    df = pd.read_excel(file_path)
+st.title("Convertir Hoja de Excel en Base de Datos Searchable")
 
-    # Crear una base de datos usando SQLite en memoria
-    import sqlite3
-    conn = sqlite3.connect(':memory:')
-    
-    # Guardar el DataFrame en la base de datos como una tabla llamada 'data'
-    df.to_sql('data', conn, index=False)
-    
-    return conn
+# Ruta al archivo de Excel predefinido
+excel_file_path = "excel.xlsx"
 
-def search_database(conn, query):
-    # Ejecutar la consulta en la base de datos
-    results = pd.read_sql_query(query, conn)
-    return results
+# Leer el archivo de Excel en un DataFrame
+try:
+    df = pd.read_excel(excel_file_path, engine='openpyxl')
 
-# Configurar la aplicación Streamlit
-st.title("Hoja de Excel a Base de Datos")
-st.write("Cargue un archivo de Excel para convertirlo en una base de datos searchable")
+    # Mostrar los primeros registros del DataFrame
+    st.subheader("Primeros registros del DataFrame:")
+    st.write(df)
 
-# Cargar el archivo de Excel
-file = st.file_uploader("Cargar archivo de Excel", type=["xls", "xlsx"])
+    # Crear una barra de búsqueda para filtrar los datos
+    search_term = st.text_input("Buscar en la base de datos:")
 
-if file:
-    conn = excel_to_database(file)
-    st.write("Hoja de Excel cargada correctamente")
-    
-    # Ingrese la consulta de búsqueda
-    query = st.text_input("Ingrese una consulta de búsqueda")
-    
-    if st.button("Buscar"):
-        results = search_database(conn, query)
-        
-        # Mostrar los resultados de la búsqueda
-        if len(results) > 0:
-            st.write("Resultados de búsqueda:")
-            st.dataframe(results)
-        else:
-            st.write("No se encontraron resultados")
+    # Filtrar los datos según el término de búsqueda
+    filtered_df = df[df.apply(lambda row: row.astype(str).str.contains(search_term, case=False).any(), axis=1)]
+
+    # Mostrar los resultados de la búsqueda
+    st.subheader("Resultados de la búsqueda:")
+    st.write(filtered_df)
+
+    # Descargar los resultados de la búsqueda como un nuevo archivo CSV
+    if st.button("Descargar resultados de búsqueda como CSV"):
+        csv_data = filtered_df.to_csv(index=False)
+        st.download_button(
+            label="Descargar CSV",
+            data=csv_data,
+            file_name="resultados_busqueda.csv",
+            mime="text/csv",
+        )
+except FileNotFoundError:
+    st.error(f"No se pudo encontrar el archivo de Excel en la ruta: {excel_file_path}")
