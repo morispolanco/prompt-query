@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 
-st.title("Convertir Hoja de Excel en Base de Datos Searchable")
+st.title("4000 prompts de neocios")
 
 # Ruta al archivo de Excel predefinido
 excel_file_path = "excel.xlsx"
